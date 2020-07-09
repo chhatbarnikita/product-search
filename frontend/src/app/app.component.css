@@ -1,0 +1,32 @@
+img.img-fluid {
+	width: 200px;
+}
+
+.cards {
+	margin-bottom: 8px;
+	padding: 5px;
+	background-color: #D3D3D3;
+}
+
+.img-thumbnail {
+	width: 150px;
+	height: 150px;
+}
+
+@media (max-width: 575px) {
+	img.img-fluid {
+		width: 90%;
+	}
+}
+
+
+@media (min-width: 576px) {
+	.main {
+		width: 55%;
+		margin: auto;
+	}
+
+	.results {
+		width: 65%;
+	}
+}

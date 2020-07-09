@@ -1,0 +1,205 @@
+<div class="container-fluid main p-2">
+  <div class="row">
+    <img src="./assets/ebayHome.png" class="img-fluid mx-auto">
+  </div>
+
+  <div class="row m-0 p-0">
+    <form class="w-100" [formGroup]="productForm">
+      <div class="form-group row">
+        <label for="keywords" class="col-sm-12 col-md-2 col-lg-2 col-from-label font-weight-bold">Key words<span class="text-danger">*</span></label>
+        <div class="col-sm-12 col-md-10 col-lg-10">
+          <input type="text" class="form-control" formControlName="keywords" id="keywords" name="keywords" placeholder="Enter keywords">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label for="price" class="col-12 col-sm-12 col-md-2 col-lg-2 col-from-label font-weight-bold">Price Range</label>
+        <div class="col-6 col-xs-6 col-sm-6 col-md-5 col-lg-5">
+          <input type="text" class="form-control" formControlName="minPrice" id="minPrice" name="minPrice" placeholder="Min Price">
+        </div>
+        <div class="col-6 col-xs-6 col-sm-6 col-md-5 col-lg-5">
+          <input type="text" class="form-control" formControlName="maxPrice" id="maxPrice" name="maxPrice" placeholder="Max Price">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-sm-12 col-md-2 col-lg-2 font-weight-bold">Condition</div>
+        <div class="col-12 col-sm-12 col-md-10 col-lg-10" formGroupName="condition">
+          <div *ngFor="let data of conditionData; let i=index" class="form-check form-check-inline">
+            <input #conditionCheckboxes type="checkbox" [value]="data.value" class="form-check-input" (change)="onConditionChange($event)">
+            <label class="form-check-label font-weight-bold">  
+              {{data.name}}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-sm-12 col-md-2 col-lg-2 font-weight-bold">Seller</div>
+        <div class="col-sm-12 col-md-10 col-lg-10">
+          <div class="form-check form-check-inline">
+            <input type="checkbox" class="form-check-input" formControlName="seller" id="seller" value="ReturnsAcceptedOnly">
+            <label class="form-check-label font-weight-bold" for="seller">Return Accepted</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-sm-12 col-md-2 col-lg-2 font-weight-bold">Shipping</div>
+        <div class="col-sm-12 col-md-10 col-lg-10" formGroupName="shipping">
+           <div *ngFor="let data of shippingData; let i=index" class="form-check form-check-inline">
+            <input #shippingCheckboxes type="checkbox" [value]="data.value" class="form-check-input" (change)="onShippingChange($event)">
+            <label class="form-check-label font-weight-bold">  
+              {{data.name}}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-sm-12 col-md-2 col-lg-2 font-weight-bold">Sort Order</div>
+        <div class="col-sm-120 col-md-10 col-lg-10">
+          <select id="sortCategory" class="custom-select" formControlName="sortCategory">
+            <option value="BestMatch" selected class="bg-dark text-white">BestMatch</option>
+            <option value="CurrentPriceHighest" class="bg-dark text-white">CurrentPriceHighest</option>
+            <option value="PricePlusShippingHighest" class="bg-dark text-white">PricePlusShippingHighest</option>
+            <option value="PricePlusShippingLowest" class="bg-dark text-white">PricePlusShippingLowest</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group row buttons float-right">
+        <div class="col">
+          <button class="btn btn-primary" type="submit" (click) = "onSubmit()"><span class="material-icons" style="vertical-align: middle;">search</span>Search</button>
+          <button class="btn btn-secondary ml-2" type="clear" (click) = "clearForm()"><span class="material-icons" style="vertical-align: middle;">clear_all</span>Clear</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <br>
+  <br>
+  <div *ngIf="productForm.get('keywords').invalid" class="alert alert-warning text-center text-dark" role="alert" id="keywordsError">
+    <b>Please enter a keyword</b>
+  </div>
+
+  <div *ngIf="productForm.errors?.negative || productForm.errors?.greater || productForm.get('minPrice').invalid || productForm.get('maxPrice').invalid" class="alert alert-warning text-center text-dark" role="alert" id="priceRangeError">
+    <b>Please use appropriate values for minPrice/maxPrice</b>
+  </div>
+
+  <div class="alert alert-warning text-center text-dark" role="alert" *ngIf="products != '' && undefined !== products && undefined !== (((products['paginationOutput'])[0])['totalEntries']) && (((products['paginationOutput'])[0])['totalEntries'])[0] == '0'">
+    <b>No exact matches found</b>
+  </div>
+</div>
+
+<hr>
+
+<div class="container-fluid mx-auto results p-4">
+  <div *ngIf="undefined !== products && products != '' && undefined !== (((products['paginationOutput'])[0])['totalEntries']) && (((products['paginationOutput'])[0])['totalEntries'])[0] != '0'">
+    <div class="row justify-content-between">
+      <div class="h5">Results for {{productForm.get('keywords').value}}</div>
+      <div class="d-none d-lg-block d-md-block d-sm-block"><pagination-controls (pageChange)="page = $event" maxSize="10" directionLinks="true" autoHide="true" responsive="true" previousLabel="Previous" nextLabel="Next"></pagination-controls></div>
+      <div class="d-lg-none d-md-none d-sm-none"><pagination-controls (pageChange)="page = $event" maxSize="5" directionLinks="true" autoHide="true" responsive="false" previousLabel="Previous" nextLabel="Next"></pagination-controls></div>
+    </div>
+    <div *ngFor="let item of (((products['searchResult'])[0]))['item'] | paginate: {itemsPerPage: 5, currentPage: page}; let i = index">
+      <div *ngIf="item" class="row cards">  
+        <div *ngIf="'https://thumbs1.ebaystatic.com/pict/04040_0.jpg' == (item['galleryURL'])[0] || '' == (item['galleryURL'])[0]" class="col-12 col-sm-12 col-md-3 col-lg-3">
+          <img class="img-thumbnail mx-auto d-block" src="./assets/ebayDefault.png" style="background-color: inherit; border: 0;">
+        </div>
+        <div *ngIf="'https://thumbs1.ebaystatic.com/pict/04040_0.jpg' != (item['galleryURL'])[0] && '' != (item['galleryURL'])[0]" class="col-12 col-sm-12 col-md-3 col-lg-3">
+          <img class="img-thumbnail mx-auto d-block" src="{{ (item['galleryURL'])[0] }}" style="background-color: inherit; border: 0;">
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-9 col-lg-9">
+          <p><a href="{{ (item['viewItemURL'])[0] }}" target="_blank">{{(item['title'])[0]}}</a></p>
+          <p><b>Price:</b> ${{ ((((item['sellingStatus'])[0])['convertedCurrentPrice'])[0])['__value__'] }}</p>
+          <p>{{ (item['location'])[0] }} &nbsp; <button class="btn btn-light" data-toggle="collapse" [attr.data-target]="'#product'+i" aria-expanded="false" [attr.aria-controls]="'product'+i" type="button" (click) = "toggleDetails($event.target)">Show Details</button></p>
+          <div [id]="'product'+i" class="collapse">
+            <mat-tab-group dynamicHeight="">
+              <mat-tab label="Basic Info">
+                <div class="row" *ngIf="undefined !== (((item['primaryCategory'])[0])['categoryName'])[0]">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>Category Name</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8"><p>{{ (((item['primaryCategory'])[0])['categoryName'])[0] }}</p></div>
+                </div>
+                 <div class="row" *ngIf="undefined !== (((item['condition'])[0])['conditionDisplayName'])[0]">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>Condition</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8"><p>{{ (((item['condition'])[0])['conditionDisplayName'])[0] }}</p></div>
+                </div>
+              </mat-tab>
+              <mat-tab label="Shipping Info">
+                <div class="row">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>ShippingType</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8"><p>{{ (((item['shippingInfo'])[0])['shippingType'])[0] }}</p></div>
+                </div>
+                <div class="row">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>Shipping cost</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8"><p>{{ ((((item['shippingInfo'])[0])['shippingServiceCost'])[0])['__value__'] }}</p></div>
+                </div>
+                <div class="row">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>Shiptolocations</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8"><p>{{ (((item['shippingInfo'])[0])['shipToLocations'])[0] }}</p></div>
+                </div>
+                <div class="row">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>ExpeditedShipping</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8">
+                    <span *ngIf="'true' == (((item['shippingInfo'])[0])['expeditedShipping'])[0]; else NoExpedited" class="material-icons text-success">done</span>
+                    <ng-template #NoExpedited>
+                      <span class="material-icons text-danger">clear</span>
+                    </ng-template>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>OneDayShippingAvailable</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8">
+                    <span *ngIf="'true' == (((item['shippingInfo'])[0])['oneDayShippingAvailable'])[0]; else NoOneDay" class="material-icons text-success">done</span>
+                    <ng-template #NoOneDay>  
+                      <span class="material-icons text-danger">clear</span>
+                    </ng-template>  
+                  </div>
+                </div>
+              </mat-tab>
+              <mat-tab label="Listing Info">
+                <div class="row" *ngIf="undefined !== (((item['listingInfo'])[0])['bestOfferEnabled'])[0]">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>BestOfferEnabled</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8">
+                    <span *ngIf="'true' == (((item['listingInfo'])[0])['bestOfferEnabled'])[0]; else NoBestOffer" class="material-icons text-success">done</span>
+                    <ng-template #NoBestOffer>  
+                      <span class="material-icons text-danger">clear</span>
+                    </ng-template>
+                  </div>
+                </div>
+                <div class="row" *ngIf="undefined !== (((item['listingInfo'])[0])['buyItNowAvailable'])[0]">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>BuyItNowAvailable</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8">
+                    <span *ngIf="'true' == (((item['listingInfo'])[0])['buyItNowAvailable'])[0]; else NoBuyItNow" class="material-icons text-success">done</span>
+                    <ng-template #NoBuyItNow>
+                      <span class="material-icons text-danger">clear</span>
+                    </ng-template>
+                  </div>
+                </div>
+                <div class="row" *ngIf="undefined !== (((item['listingInfo'])[0])['listingType'])[0]">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>ListingType</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8"><p>{{ (((item['listingInfo'])[0])['listingType'])[0] }}</p></div>
+                </div>
+                <div class="row" *ngIf="undefined !== (((item['listingInfo'])[0])['gift'])[0]">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold">Gift</div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8">
+                    <span *ngIf="'true' == (((item['listingInfo'])[0])['gift'])[0]; else NoGift" class="material-icons text-success">done</span>
+                    <ng-template #NoGift>  
+                      <span class="material-icons text-danger">clear</span>
+                    </ng-template>
+                  </div>
+                </div>
+                <div class="row" *ngIf="undefined !== (((item['listingInfo'])[0])['watchCount']) && '' != (((item['listingInfo'])[0])['watchCount'])[0]">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-4 font-weight-bold"><p>WatchCount</p></div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-8"><p>{{ (((item['listingInfo'])[0])['watchCount'])[0] }}</p></div>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
+          </div>
+        </div>
+      </div>  
+    </div>
+  </div>
+</div>
