@@ -61,7 +61,7 @@ app.get('/getProducts', function (req, res) {
 
 	var sortOrder = req.param('sortCategory');
 
-	var url = 'https://svcs.ebay.com/services/search/FindingService/v1?OPERATION-NAME=findItemsAdvanced&SERVICE-VERSION=1.0.0&SECURITY-APPNAME=NikitaCh-productS-PRD-72eb84eea-e6ce535f&RESPONSE-DATA-FORMAT=JSON&REST-PAYLOAD&keywords='+ keywords +'&sortOrder=' + sortOrder + filterStr;
+	var url = 'https://svcs.ebay.com/services/search/FindingService/v1?OPERATION-NAME=findItemsAdvanced&SERVICE-VERSION=1.0.0&SECURITY-APPNAME='+ your_ebay_api_id +'&RESPONSE-DATA-FORMAT=JSON&REST-PAYLOAD&keywords='+ keywords +'&sortOrder=' + sortOrder + filterStr;
 
 	request.get(url, function (error, response, body) {
 		if(error || response.statusCode != 200) {
@@ -73,7 +73,7 @@ app.get('/getProducts', function (req, res) {
 
 app.get('/getSingleProduct', function (req, res) {
 	var productId = req.param('productId');
-	var url = 'https://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid=NikitaCh-productS-PRD-72eb84eea-e6ce535f&siteid=0&version=967&ItemID='+ productId +'&IncludeSelector=Details,ItemSpecifics'
+	var url = 'https://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid='+ your_ebay_api_id +'&siteid=0&version=967&ItemID='+ productId +'&IncludeSelector=Details,ItemSpecifics'
 
 	request.get(url, function (error, response, body) {
 		if(error || response.statusCode != 200) {
